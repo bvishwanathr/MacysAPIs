@@ -48,6 +48,9 @@ namespace MacysAPIs
 			}
 		}
 
+		//https://developer.xamarin.com/guides/cross-platform/application_fundamentals/web_services/
+		//https://developer.xamarin.com/recipes/android/web_services/consuming_services/call_a_rest_web_service/
+		//http://developer.macys.com/io-docs
 
 
 		public static async Task<JsonValue> FetchWeatherAsync()
