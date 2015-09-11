@@ -1,17 +1,64 @@
 ﻿using System;
+using System.Threading.Tasks;
+using System.Json;
+using System.Net;
+using System.IO;
+using d = DRGShared;
 
 namespace MacysAPIs
 {
 	public static class CatalogServices
 	{
-		public CatalogServices()
+
+
+		public static async Task<JsonValue> GetCategoryIndex()
 		{
+			string strUri = "http://api.macys.com/v3/catalog/category/index?category=118&depth=1";
+			WebResponse wrResponse;
+			try
+			{
+				// Create an HTTP web request using the URL:
+				HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(new Uri(strUri));
+				request.ContentType = "Accept: application/json" +
+				d.Strings.NewLine() +
+				"X-Macys-Webservice-Client-Id: mcomhackdays2015" +
+				d.Strings.NewLine() +
+				"X-Originating-Ip: 206.169.185.30";
+
+				request.Method = "GET";
+
+				// Send the request to the server and wait for the response:
+				using (wrResponse = await request.GetResponseAsync())
+				{
+					// Get a stream representation of the HTTP web response:
+					using (Stream stream = wrResponse.GetResponseStream())
+					{
+						// Use this stream to build a JSON document object:
+						JsonValue jsonDoc = await Task.Run(() => JsonObject.Load(stream));
+						Console.Out.WriteLine("Response: {0}", jsonDoc.ToString());
+
+						// Return the JSON document:
+						return jsonDoc;
+					}
+				}
+			} catch(Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+				return null;
+			}
 		}
 
-		private async Task<JsonValue> FetchWeatherAsync(string url)
+
+
+		public static async Task<JsonValue> FetchWeatherAsync()
 		{
 			// Create an HTTP web request using the URL:
-			HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(new Uri(url));
+			string strUrl = "http://api.geonames.org/findNearByWeatherJSON?lat=" +
+			                "37.7833" +
+			                "&lng=" +
+			                "122.4167" +
+			                "&username=demo";
+			HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(new Uri(strUrl));
 			request.ContentType = "application/json";
 			request.Method = "GET";
 
@@ -34,32 +81,12 @@ namespace MacysAPIs
 
 
 
-		private async Task<JsonValue> FetchWeatherAsync(string url)
-		{
-			// Create an HTTP web request using the URL:
-			HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(new Uri(url));
-			request.ContentType = "application/json";
-			request.Method = "GET";
 
-			// Send the request to the server and wait for the response:
-			using (WebResponse response = await request.GetResponseAsync())
-			{
-				// Get a stream representation of the HTTP web response:
-				using (Stream stream = response.GetResponseStream())
-				{
-					// Use this stream to build a JSON document object:
-					JsonValue jsonDoc = await Task.Run(() => JsonObject.Load(stream));
-					Console.Out.WriteLine("Response: {0}", jsonDoc.ToString());
-
-					// Return the JSON document:
-					return jsonDoc;
-				}
-			}
-		}
 
 		//Example of Parse and Display
-		private void ParseAndDisplay(JsonValue json)
+		private static void ParseAndDisplay(JsonValue json)
 		{
+			/*
 			// Get the weather reporting fields from the layout resource:
 			TextView location = FindViewById<TextView>(Resource.Id.locationText);
 			TextView temperature = FindViewById<TextView>(Resource.Id.tempText);
@@ -94,7 +121,9 @@ namespace MacysAPIs
 
 			// Write the result to the conditions TextBox:
 			conditions.Text = cloudy + " " + cond;
+			*/
 		}
+
 
 	}
 }
